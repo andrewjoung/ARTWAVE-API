@@ -3,7 +3,11 @@ const mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
 let ListSchema = new Schema({
-
+    
+    title: {
+        type: String,
+        required:true
+    },
     items:[
         {
             type: Schema.Types.ObjectId,
@@ -18,7 +22,7 @@ let ListSchema = new Schema({
             ref:"Music"
         }
     ],
-
+    pinned: false,
     comments:[
         {
             type: Schema.Types.ObjectId,

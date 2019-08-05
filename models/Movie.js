@@ -8,7 +8,7 @@ let MovieSchema = new Schema({
         type:String,
         required:true
     },
-
+    genre: String,
     actors: String,
     director: String,
     artUri:String,
