@@ -18,7 +18,7 @@ let ListSchema = new Schema({
             ref:"Music"
         }
     ],
-
+    pinned: false,
     comments:[
         {
             type: Schema.Types.ObjectId,
