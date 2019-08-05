@@ -11,7 +11,7 @@ const app = express();
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
-app.use(express.static("public"));
+// app.use(express.static("public"));
 
 app.use(cors());
 
@@ -20,12 +20,20 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoArtWave
 mongoose.connect(MONGODB_URI);
 
 app.get("/", function(req, res) {
-    res.send("hello world");
+    res.json("hello world");
 });
 
 app.post("/register", function(req, res) {
     console.log(req.body);
-    res.json(req.body);
+    db.User.create({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        username: req.body.username,
+        email: req.body.email,
+        password: req.body.password
+    }).then(function() {
+        res.json(req.body);
+    });
 });
 
 //App will listen of ports
