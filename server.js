@@ -1,12 +1,15 @@
 const express = require('express'); //require Express
 const mongoose = require('mongoose'); //require Mongoose
 var Spotify = require('node-spotify-api');
-var cors = require('cors')
+var cors = require('cors');
 var spotify = new Spotify({
     id: 'b5d5612d07684ecdacbfd220fb70b4c9',
     secret: '7c527687d94c49f1a283872df71f004e'
 });
-var array4 = []
+var axios = require('axios');
+let apiKey = '91413d43';
+
+
 
 
 
@@ -81,9 +84,63 @@ app.post('/song', (req, res) => {
 
     });
 })
-// app.get('/album', (req, res) => {
-//     res.json(array4);
-// })
+
+
+app.post('/books', (req, res) => {
+    axios.get(`https://www.googleapis.com/books/v1/volumes?q=${req.body.title}`).then(response => {
+        let array2 = []
+
+
+
+        for (var i = 0; i < response.data.items.length; i++) {
+            if (response.data.items[i].volumeInfo.imageLinks) {
+
+                let emptyO = { name: '', image: '', id: i }
+                emptyO.name = response.data.items[i].volumeInfo.title
+                emptyO.image = response.data.items[i].volumeInfo.imageLinks.thumbnail
+
+                array2.push(emptyO)
+
+            }
+        } res.send(array2)
+
+
+    })
+});
+
+
+app.post('/movies', (req, res) => {
+    let omdb = `http://www.omdbapi.com/?s=${req.body.title}&y=&plot=short&apikey=${apiKey}`
+    axios.get(omdb).then(response => {
+        console.log(req.body.title)
+        let array2 = []
+
+        for (var i = 0; i < response.data.Search.length; i++) {
+            if (response.data.Search[i].Poster !== 'N/A') {
+
+                let emptyO = { name: '', image: '', id: i }
+                emptyO.name = response.data.Search[i].Title;
+                emptyO.image = response.data.Search[i].Poster;
+
+                array2.push(emptyO)
+
+            }
+
+        }
+        res.send(array2)
+
+
+
+
+
+
+    }).catch(err => {
+        console.log(err)
+    })
+    
+
+})
+
 
 
 //App will listen of ports
