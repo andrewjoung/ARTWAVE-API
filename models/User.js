@@ -3,8 +3,15 @@ const mongoose = require("mongoose");
 let Schema = mongoose.Schema;
 
 let UserSchema = new Schema({
-    //full name of the user 
-    name: {
+    firstName: {
+        type: String,
+        require: true
+    },
+    lastName: {
+        type: String,
+        require: true
+    },
+    username: {
         type: String,
         require: true
     },
