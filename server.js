@@ -30,11 +30,11 @@ mongoose.connect(MONGODB_URI);
 
 
 
-app.post("/user/login", function(req, res) {
+app.post("/user/login", function (req, res) {
     // console.log(req.body);
     db.User.findOne({
         username: req.body.username
-    }, function(err, user) {
+    }, function (err, user) {
         if (err) throw err;
         console.log("db response", user);
         res.json({
@@ -50,7 +50,7 @@ app.post("/user/login", function(req, res) {
     })
 })
 
-app.post("/register", function(req, res) {
+app.post("/register", function (req, res) {
     console.log(req.body);
     db.User.create({
         firstName: req.body.firstName,
@@ -58,9 +58,11 @@ app.post("/register", function(req, res) {
         username: req.body.username,
         email: req.body.email,
         password: req.body.password
-    }).then(function() {
+    }).then(function () {
         res.json(req.body);
-      
+    })
+})
+
 app.post('/album/', (req, res) => {
     spotify.search({ type: 'album', query: `${req.body.title}` }, function (err, data) {
         let array4 = []
@@ -122,6 +124,7 @@ app.post('/song', (req, res) => {
 app.post('/books', (req, res) => {
     axios.get(`https://www.googleapis.com/books/v1/volumes?q=${req.body.title}`).then(response => {
         let array2 = []
+        console.log(response.data)
 
 
 
@@ -129,8 +132,9 @@ app.post('/books', (req, res) => {
             if (response.data.items[i].volumeInfo.imageLinks) {
 
                 let emptyO = { name: '', image: '', id: i }
-                emptyO.name = response.data.items[i].volumeInfo.title
-                emptyO.image = response.data.items[i].volumeInfo.imageLinks.thumbnail
+                emptyO.name = response.data.items[i].volumeInfo.title;
+                emptyO.image = response.data.items[i].volumeInfo.imageLinks.thumbnail;
+                emptyO.Search=response.data.items[i].id;
 
                 array2.push(emptyO)
 
@@ -141,36 +145,61 @@ app.post('/books', (req, res) => {
     })
 });
 
+app.post('/books/:id',(req,res)=>{
+    axios.get(`https://www.googleapis.com/books/v1/volumes/${req.params.id}`).then(data=>{
+        db.Book.create({
+            title:data.data.volumeInfo.title,
+            author: data.data.volumeInfo.authors[0],
+            artUri: data.data.volumeInfo.imageLinks.thumbnail,
+            synopsis: data.data.volumeInfo.description,
+            uri:data.data.selfLink
+        })
+    }).catch(err=>{
+        console.log(err)
+    })
+})
+
 app.post('/movies', (req, res) => {
     let omdb = `http://www.omdbapi.com/?s=${req.body.title}&y=&plot=short&apikey=${apiKey}`
     axios.get(omdb).then(response => {
-        console.log(req.body.title)
+        
+        // console.log(response.data)
         let array2 = []
 
         for (var i = 0; i < response.data.Search.length; i++) {
             if (response.data.Search[i].Poster !== 'N/A') {
 
-                let emptyO = { name: '', image: '', id: i }
+                let emptyO = { name: '', image: '', id: i,searchId:'' };
                 emptyO.name = response.data.Search[i].Title;
                 emptyO.image = response.data.Search[i].Poster;
-
-                array2.push(emptyO)
-
+                emptyO.searchId=response.data.Search[i].imdbID;
+                // console.log(response.data.Search[i].imdbID)
+                array2.push(emptyO);
             }
-
         }
         res.send(array2)
-
-
-
-
-
-
     }).catch(err => {
         console.log(err)
     })
-    
 
+
+})
+
+app.post('/movies/:id',(req,res)=>{
+    console.log('looking at movies')
+    axios.get(`http://www.omdbapi.com/?i=${req.params.id}&apikey=${apiKey}` ).then(data=>{
+
+    console.log(data.data.Title)
+        db.Movie.create({
+           title:data.data.Title,
+           genre: data.data.Genre,
+           actors: data.data.Actors,
+           director : data.data.Director,
+           artUri: data.data.Poster,
+           synopsis: data.data.Plot,
+           uri: data.data.Website
+        })
+    })
 })
 
 
