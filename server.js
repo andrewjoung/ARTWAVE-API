@@ -60,6 +60,8 @@ app.post("/register", function(req, res) {
         password: req.body.password
     }).then(function() {
         res.json(req.body);
+    })
+});
       
 app.post('/album/', (req, res) => {
     spotify.search({ type: 'album', query: `${req.body.title}` }, function (err, data) {
@@ -173,6 +175,18 @@ app.post('/movies', (req, res) => {
 
 })
 
+app.post("/create-list", function(req,res) {
+    console.log(req.body);
+    db.List.create({title: req.body.title, category: req.body.category}).then(function(dbList) {
+        res.json(dbList);
+        return db.User.findOneAndUpdate({username: req.body.username}, { $push: { lists: dbList._id } }, { new: true });
+    }).then(function(dbUser) {
+        //res.json(dbUser);
+        console.log(dbUser);
+    }).catch(function(err) {
+        res.json(err);
+    });
+});
 
 
 //App will listen of ports
