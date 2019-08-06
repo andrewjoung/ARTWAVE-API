@@ -29,6 +29,38 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoArtWave
 mongoose.connect(MONGODB_URI);
 
 
+
+app.post("/user/login", function(req, res) {
+    // console.log(req.body);
+    db.User.findOne({
+        username: req.body.username
+    }, function(err, user) {
+        if (err) throw err;
+        console.log("db response", user);
+        res.json({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            username: user.username,
+            email: user.email,
+            id: user._id,
+            lists: user.lists,
+            recommended: user.recommended,
+            friends: user.friends
+        });
+    })
+})
+
+app.post("/register", function(req, res) {
+    console.log(req.body);
+    db.User.create({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        username: req.body.username,
+        email: req.body.email,
+        password: req.body.password
+    }).then(function() {
+        res.json(req.body);
+      
 app.post('/album/', (req, res) => {
     spotify.search({ type: 'album', query: `${req.body.title}` }, function (err, data) {
         let array4 = []
@@ -82,6 +114,7 @@ app.post('/song', (req, res) => {
         }
         res.send(array4)
 
+
     });
 })
 
@@ -107,7 +140,6 @@ app.post('/books', (req, res) => {
 
     })
 });
-
 
 app.post('/movies', (req, res) => {
     let omdb = `http://www.omdbapi.com/?s=${req.body.title}&y=&plot=short&apikey=${apiKey}`
