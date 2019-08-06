@@ -204,11 +204,7 @@ app.post('/movies/:id',(req,res)=>{
 })
 
 
-axios.get('https://api.spotify.com/v1/tracks/{0mBL2JwjNYKtdFacHxvtJt}').then(data=>{
-    console.log(data)
-}).catch(err=>{
-    console.log(err)
-})
+
 //App will listen of ports
 app.listen(PORT, function () {
     console.log("App running on port " + PORT + "!");
