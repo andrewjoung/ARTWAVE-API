@@ -23,6 +23,26 @@ app.get("/", function(req, res) {
     res.json("hello world");
 });
 
+app.post("/user/login", function(req, res) {
+    // console.log(req.body);
+    db.User.findOne({
+        username: req.body.username
+    }, function(err, user) {
+        if (err) throw err;
+        console.log("db response", user);
+        res.json({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            username: user.username,
+            email: user.email,
+            id: user._id,
+            lists: user.lists,
+            recommended: user.recommended,
+            friends: user.friends
+        });
+    })
+})
+
 app.post("/register", function(req, res) {
     console.log(req.body);
     db.User.create({
