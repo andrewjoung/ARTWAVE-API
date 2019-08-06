@@ -69,8 +69,8 @@ app.post('/album/', (req, res) => {
         if (err) {
             return console.log('Error occurred: ' + err);
         }
-
-
+        console.log('checking albums')
+        console.log(data.albums.items[0])
         for (var i = 0; i < data.albums.items.length; i++) {
             let bigO = {};
             let name = data.albums.items[i].name
@@ -84,8 +84,8 @@ app.post('/album/', (req, res) => {
             array4.push(bigO)
 
         }
-        console.log(array4)
-        // console.log(data.albums.items[0])
+       
+       
 
 
         res.json(array4);
@@ -101,7 +101,7 @@ app.post('/song', (req, res) => {
         if (err) {
             return console.log('Error occurred: ' + err);
         }
-        // console.log(data.tracks.items[0].album.name)
+        console.log(data.tracks.items[0])
         for (var i = 0; i < data.tracks.items.length; i++) {
             let bigO = {};
             let image = (data.tracks.items[i].album.images[0].url);
@@ -110,6 +110,7 @@ app.post('/song', (req, res) => {
             bigO.image = image;
             bigO.artist = data.tracks.items[i].album.artists[0].name
             bigO.id = i
+            bigO.search = data.tracks.items[i].id
             array4.push(bigO)
 
 
@@ -203,7 +204,11 @@ app.post('/movies/:id',(req,res)=>{
 })
 
 
-
+axios.get('https://api.spotify.com/v1/tracks/{0mBL2JwjNYKtdFacHxvtJt}').then(data=>{
+    console.log(data)
+}).catch(err=>{
+    console.log(err)
+})
 //App will listen of ports
 app.listen(PORT, function () {
     console.log("App running on port " + PORT + "!");
