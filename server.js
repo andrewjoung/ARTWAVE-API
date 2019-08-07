@@ -153,7 +153,14 @@ app.post('/books/:id',(req,res)=>{
             artUri: data.data.volumeInfo.imageLinks.thumbnail,
             synopsis: data.data.volumeInfo.description,
             uri:data.data.selfLink
-        })
+        }).then(function(dbBook) {
+            return db.List.findOneAndUpdate({_id: req.body.id}, { $push: { items: dbBook._id} }, { new: true});
+        }).then(function(dbList) {
+            console.log("pushing into book list", dbList);
+            res.json(dbList);
+        }).catch(function(err) {
+            res.json(err);
+        });
     }).catch(err=>{
         console.log(err)
     })
@@ -188,19 +195,29 @@ app.post('/movies', (req, res) => {
 app.post('/movies/:id',(req,res)=>{
     console.log('looking at movies')
     axios.get(`http://www.omdbapi.com/?i=${req.params.id}&apikey=${apiKey}` ).then(data=>{
-
-    console.log(data.data.Title)
+        
+        console.log("testing scott's stuff", req.body);
+        console.log(data.data.Title)
         db.Movie.create({
-           title:data.data.Title,
-           genre: data.data.Genre,
-           actors: data.data.Actors,
-           director : data.data.Director,
-           artUri: data.data.Poster,
-           synopsis: data.data.Plot,
-           uri: data.data.Website
-        })
-    })
-})
+            title:data.data.Title,
+            genre: data.data.Genre,
+            actors: data.data.Actors,
+            director : data.data.Director,
+            artUri: data.data.Poster,
+            synopsis: data.data.Plot,
+            uri: data.data.Website
+        }).then(function(dbMovie) {
+            return db.List.findOneAndUpdate({_id: req.body.id}, { $push: { items: dbMovie._id } }, { new: true} );
+        }).then(function(dbList) {
+            console.log(dbList);
+            res.json(dbList);
+        }).catch(function(err) {
+            res.json(err);
+        });
+
+        //res.json(data);
+    });
+});
 
 app.post("/create-list", function(req,res) {
     console.log(req.body);
@@ -215,6 +232,16 @@ app.post("/create-list", function(req,res) {
     });
 });
 
+app.get("/user/:id", function(req, res) {
+    console.log("testing display list stuff", req.params.id);
+    db.User.findOne({username: req.params.id}).populate("lists").then(function(dbUser) {
+        res.json(dbUser);
+    }).catch(function(err) {
+        res.json(err);
+    })
+
+
+});
 
 //App will listen of ports
 app.listen(PORT, function () {
