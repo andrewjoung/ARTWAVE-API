@@ -220,13 +220,20 @@ app.post('/song/:id/:title', (req, res) => {
         if (err) {
             return console.log('Error occurred: ' + err);
         }
+
+        
         // console.log(data.tracks.items[0].album.id)
         for(var i = 0; i < data.tracks.items.length; i++){
             if(req.params.id === data.tracks.items[i].id){
-                let bigO = {}
-                bigO.name = name;
-                bigO.image = image;
-                bigO.artist = data.tracks.items[i].album.artists[0].name
+                // console.log(data.tracks.items[i])
+               let array = []
+               array.push(data.tracks.items[i].name);
+               let artist = (data.tracks.items[i].artists[0].name);
+               let uri = (data.tracks.items[i].uri);
+               let artUri= (data.tracks.items[i].album.images[0].url);
+               let albumTitle = (data.tracks.items[i].album.name);
+
+               
             }
         }
     })
@@ -325,9 +332,13 @@ app.post('/comments',(req,res)=>{
     console.log(req.body);
 })
 
-let omdb = `http://www.omdbapi.com/?s=matrix&y=&plot=short&apikey=${apiKey}`
-axios.get(omdb).then(data=>{
-    console.log(data.data.Search[0].imdbID)
+app.post('/listItem',(req,res)=>{
+    const {id,type} = req.body;
+    if(type === 'cinema'){
+        axios.get(`http://www.omdbapi.com/?i=${id}&apikey=${apiKey}`).then(data=>{
+            res.send(data.data)
+        })
+    }
 })
 
 //App will listen of ports
