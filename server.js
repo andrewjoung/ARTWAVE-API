@@ -63,6 +63,8 @@ app.post("/register", function (req, res) {
     })
 })
 
+//Route for searching album, returns 20 albums, which are images that are displayed and have onclick handlers
+
 app.post('/album/', (req, res) => {
     spotify.search({ type: 'album', query: `${req.body.title}` }, function (err, data) {
         let array4 = []
@@ -91,6 +93,7 @@ app.post('/album/', (req, res) => {
     });
 })
 
+//route for returning and storing single album based on user click, parameters to re-search appropriate album and push to user specific list database
 app.post('/album/:id/:title', (req, res) => {
     spotify.search({ type: 'album', query: `${req.params.title}` }, (err, data) => {
 
@@ -117,7 +120,7 @@ app.post('/album/:id/:title', (req, res) => {
     })
 })
 
-
+//route for song search, identical to album
 app.post('/song', (req, res) => {
     spotify.search({ type: 'track', query: `${req.body.title}` }, function (err, data) {
         let array4 = []
@@ -144,7 +147,7 @@ app.post('/song', (req, res) => {
     });
 });
 
-
+//secondary song search based on specific user click, will store to user specific database
 app.post('/song/:id/:title', (req, res) => {
     spotify.search({ type: 'track', query: `${req.params.title}` }, (err, data) => {
 
@@ -163,7 +166,7 @@ app.post('/song/:id/:title', (req, res) => {
     })
 })
 
-
+//route to find books for sure based on volume name
 app.post('/books', (req, res) => {
     axios.get(`https://www.googleapis.com/books/v1/volumes?q=${req.body.title}`).then(response => {
         let array2 = []
@@ -187,7 +190,7 @@ app.post('/books', (req, res) => {
 
     })
 });
-
+//searches for specific book based on book Id after user clicks to add to list
 app.post('/books/:id', (req, res) => {
     axios.get(`https://www.googleapis.com/books/v1/volumes/${req.params.id}`).then(data => {
         db.Book.create({
@@ -202,6 +205,8 @@ app.post('/books/:id', (req, res) => {
     })
 })
 
+
+//searches 10 moives based on user input 
 app.post('/movies', (req, res) => {
     let omdb = `http://www.omdbapi.com/?s=${req.body.title}&y=&plot=short&apikey=${apiKey}`
     axios.get(omdb).then(response => {
@@ -228,6 +233,7 @@ app.post('/movies', (req, res) => {
 
 })
 
+//searches specific user movie based on onClick and adds to user specific list
 app.post('/movies/:id', (req, res) => {
     console.log('looking at movies')
     axios.get(`http://www.omdbapi.com/?i=${req.params.id}&apikey=${apiKey}`).then(data => {
@@ -246,6 +252,17 @@ app.post('/movies/:id', (req, res) => {
 })
 
 
+//Post route for comments, will send thorugh specific list Id (via mongo eg: __id) and comment to be added to list.
+//Will also need 
+
+app.post('/comments',(req,res)=>{
+    console.log(req.body);
+})
+
+let omdb = `http://www.omdbapi.com/?s=matrix&y=&plot=short&apikey=${apiKey}`
+axios.get(omdb).then(data=>{
+    console.log(data.data.Search[0].imdbID)
+})
 
 //App will listen of ports
 app.listen(PORT, function () {
