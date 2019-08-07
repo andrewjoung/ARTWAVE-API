@@ -169,18 +169,26 @@ app.post('/album/:id/:title', (req, res) => {
         // console.log(data.tracks.items[0].album.id)
         for(var i = 0; i < data.albums.items.length; i++){
             if(req.params.id === data.albums.items[i].id){
-                let bigO = {};
+                console.log(data.albums.items[i])
                 let name = data.albums.items[i].name
                 let artist = (data.albums.items[i].artists[0].name);
                 let image = (data.albums.items[i].images[0].url);
     
-                bigO.artist = artist;
-                bigO.image = image;
-                bigO.name = name;
-                bigO.id = i
-                bigO.search=data.albums.items[i].id
+                artist = artist;
+                artUri = image;
+                albumTitle=name
+                searchId=data.albums.items[i].id
+                uri=(data.albums.items[i].uri)
+                db.Music.create({
+                    artist,
+                    artUri,
+                    albumTitle,
+                    uri,
+                    searchId
+                })
 
-                console.log(bigO)
+
+                // console.log(artist,artUri,albumTitle,searchId)
             }
         }
     })
@@ -232,8 +240,15 @@ app.post('/song/:id/:title', (req, res) => {
                let uri = (data.tracks.items[i].uri);
                let artUri= (data.tracks.items[i].album.images[0].url);
                let albumTitle = (data.tracks.items[i].album.name);
+               let searchId = data.tracks.itmes[i].id
 
-               
+               db.Music.create({
+                   tracks:array,
+                   artist,
+                   artUri,
+                   albumTitle,
+                   uri,searchId
+               })
             }
         }
     })
