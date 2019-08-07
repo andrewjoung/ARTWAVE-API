@@ -1,70 +1,136 @@
-const express = require('express'); //require Express
-const mongoose = require('mongoose'); //require Mongoose
-var Spotify = require('node-spotify-api');
-var cors = require('cors');
-var spotify = new Spotify({
+// Import base packages
+const express = require('express');
+const mongoose = require('mongoose');
+const axios = require('axios');
+const cors = require('cors');
+
+// Session authentication and encryption packages
+const passport = require("passport");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const keys = require("./config/keys");
+
+// API Information
+// Spotify package and keys TODO: Move api keys to .env file
+const Spotify = require('node-spotify-api');
+const spotify = new Spotify({
     id: 'b5d5612d07684ecdacbfd220fb70b4c9',
     secret: '7c527687d94c49f1a283872df71f004e'
 });
-var axios = require('axios');
+// OMDb key
 let apiKey = '91413d43';
 
+// Retrieve our database schema
+const db = require("./models");
 
-
-
-
-const db = require("./models"); //Define our DB
-
-const PORT = process.env.PORT || 8080; //ports
-
+// Instantiate express
 const app = express();
 app.use(cors())
-
-app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
+require("./config/passport")(passport);
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+// const users = require("./routes/api/users.js");
+// app.use(users);
 // app.use(express.static("public"));
 
+// Connect database
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoArtWave";
 
-mongoose.connect(MONGODB_URI);
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true}).then(() => {
+    console.log("\nMongoDB successfully connected\n");
+}).catch(err => {
+    console.log(err);
+});
 
+const PORT = process.env.PORT || 8080;
 
+// ROUTES -------------------------------------------------------------------------
 
-app.post("/user/login", function (req, res) {
-    // console.log(req.body);
-    db.User.findOne({
-        username: req.body.username
-    }, function (err, user) {
-        if (err) throw err;
-        console.log("db response", user);
-        res.json({
-            firstName: user.firstName,
-            lastName: user.lastName,
-            username: user.username,
-            email: user.email,
-            id: user._id,
-            lists: user.lists,
-            recommended: user.recommended,
-            friends: user.friends
+// function to validate user provided login info
+const validateLoginInput = require("./validation/login");
+
+// 
+app.post("/login", function(req, res) {
+    const {errors, isValid} = validateLoginInput(req.body);
+    if (!isValid) {
+        return res.status(400).json(errors);
+    }
+    const username = req.body.username;
+    const password = req.body.password;
+    db.User.findOne({username}).then(user => {
+        if(!user) {
+            return res.status(404).json({usernameNotFound: "Username not found"});
+        }
+        bcrypt.compare(password, user.password).then(isMatch => {
+            if(isMatch) {
+                const payload = {
+                    id: user.id,
+                    name: user.firstName + " " + user.lastName
+                };
+                jwt.sign(payload, keys.secretOrKey, {expiresIn: 3600}, (err, token) => {
+                    if(err) throw err;
+                    res.json({
+                        success: true,
+                        token: "Bearer " + token,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        username: user.username,
+                        email: user.email,
+                        id: user._id,
+                        lists: user.lists,
+                        recommended: user.recommended,
+                        friends: user.friends
+                    });
+                });
+            } else {
+                return res.status(400).json({passwordIncorrect: "Incorrect password"});
+            }
         });
-    })
-})
+    });
+});
 
-app.post("/register", function (req, res) {
+// function to validate user provided registration info
+const validateRegisterInput = require("./validation/register");
+
+//
+app.post("/register", function(req, res) {
     console.log(req.body);
-    db.User.create({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        username: req.body.username,
-        email: req.body.email,
-        password: req.body.password
-    }).then(function () {
-        res.json(req.body);
-    })
-})
+    const {errors, isValid} = validateRegisterInput(req.body);
 
-//Route for searching album, returns 20 albums, which are images that are displayed and have onclick handlers
+    if (!isValid) {
+        return res.status(400).json(errors);
+    }
 
+    db.User.findOne({username: req.body.username}).then(user => {
+        if (user) {
+            return res.status(400).json({username: "Username is already in use - please choose another"});
+        } else {
+            const newUser = {
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                username: req.body.username,
+                email: req.body.email,
+                password: req.body.password
+            }
+            bcrypt.genSalt(10, (err, salt) => {
+                if (err) throw err;
+                bcrypt.hash(newUser.password, salt, (err, hash) => {
+                    if (err) throw err;
+                    newUser.password = hash;
+                    db.User.create(newUser).then(user => {
+                        console.log(user);
+                        res.json(user);
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                });
+            });
+        }
+    });
+});
+
+//      
 app.post('/album/', (req, res) => {
     spotify.search({ type: 'album', query: `${req.body.title}` }, function (err, data) {
         let array4 = []
