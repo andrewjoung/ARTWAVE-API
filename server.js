@@ -256,7 +256,6 @@ app.post('/song/:id/:title', (req, res) => {
             return console.log('Error occurred: ' + err);
         }
 
-
         
         for (var i = 0; i < data.tracks.items.length; i++) {
     
@@ -278,6 +277,7 @@ app.post('/song/:id/:title', (req, res) => {
                     uri, 
                     searchId
                 }).then(function (dbMusic) {
+                    console.log('checking')
                     return db.List.findOneAndUpdate({ _id: req.body.id }, { $push: { items: dbMusic._id } }, { new: true });
                 }).then(function (dbList) {
                     console.log("Adding music item into", dbList);
@@ -424,6 +424,7 @@ app.post('/comments', (req, res) => {
 
 app.post('/list/:id/:category', (req, res) => {
     var array = []
+    console.log('this is being checked')
     const { id, category } = req.params
     db.List.findOne({
         _id: id
@@ -459,18 +460,18 @@ app.post('/list/:id/:category', (req, res) => {
 
             }
         }
-        else {
-            console.log(data)
-            for (var i = 0; i < data.items.length; i++) {
-                db.Music.findOne({ _id: data.items[i] }).then(data2 => {
+        else if(category==='music') {
+            for(var i = 0; i < data.items.length; i++){
+                db.Music.findOne({_id:data.items[i]}).then(data2=>{
                     array.push(data2);
                     count++
-                    if (count === data.items.length) {
-                        res.send(array);
-                        console.log('checking here', array)
+                    if(count === data.items.length){
+                        console.log(array)
+                        res.send(array)
                     }
                 })
             }
+
         }
 
     })
