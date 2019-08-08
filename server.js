@@ -149,6 +149,30 @@ app.get("/users/:id", (req, res) => {
     });
 });
 
+// 
+app.put("/addFriend", (req, res) => {
+    const {userId, friendId} = req.body;
+    db.User.update({_id: userId}, {$push: {friends: friendId}}).then(dbRes => {
+        console.log(dbRes);
+        res.json(dbRes);
+    }).catch(err => {
+        console.log(err);
+        res.end();
+    });
+});
+
+//
+app.get("/getFriends/:id", (req, res) => {
+    // use populate to get all friends
+    db.User.findOne({_id: req.params.id}).populate("friends").then(dbRes => {
+        console.log("User friends: \n", dbRes);
+        res.json(dbRes);
+    }).catch(err => {
+        console.log(err);
+        res.end();
+    });
+});
+
 //      
 app.post('/album/', (req, res) => {
     spotify.search({ type: 'album', query: `${req.body.title}` }, function (err, data) {
