@@ -37,7 +37,7 @@ app.use(express.json());
 // Connect database
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoArtWave";
 
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true}).then(() => {
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true }).then(() => {
     console.log("\nMongoDB successfully connected\n");
 }).catch(err => {
     console.log(err);
@@ -51,25 +51,25 @@ const PORT = process.env.PORT || 8080;
 const validateLoginInput = require("./validation/login");
 
 // 
-app.post("/login", function(req, res) {
-    const {errors, isValid} = validateLoginInput(req.body);
+app.post("/login", function (req, res) {
+    const { errors, isValid } = validateLoginInput(req.body);
     if (!isValid) {
         return res.status(400).json(errors);
     }
     const username = req.body.username;
     const password = req.body.password;
-    db.User.findOne({username}).then(user => {
-        if(!user) {
-            return res.status(404).json({usernameNotFound: "Username not found"});
+    db.User.findOne({ username }).then(user => {
+        if (!user) {
+            return res.status(404).json({ usernameNotFound: "Username not found" });
         }
         bcrypt.compare(password, user.password).then(isMatch => {
-            if(isMatch) {
+            if (isMatch) {
                 const payload = {
                     id: user.id,
-                    name: user.firstName + " " + user.lastName
+                    name: user.username
                 };
-                jwt.sign(payload, keys.secretOrKey, {expiresIn: 3600}, (err, token) => {
-                    if(err) throw err;
+                jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 }, (err, token) => {
+                    if (err) throw err;
                     res.json({
                         success: true,
                         token: "Bearer " + token,
@@ -84,7 +84,7 @@ app.post("/login", function(req, res) {
                     });
                 });
             } else {
-                return res.status(400).json({passwordIncorrect: "Incorrect password"});
+                return res.status(400).json({ passwordIncorrect: "Incorrect password" });
             }
         });
     });
@@ -94,17 +94,17 @@ app.post("/login", function(req, res) {
 const validateRegisterInput = require("./validation/register");
 
 //
-app.post("/register", function(req, res) {
+app.post("/register", function (req, res) {
     console.log(req.body);
-    const {errors, isValid} = validateRegisterInput(req.body);
+    const { errors, isValid } = validateRegisterInput(req.body);
 
     if (!isValid) {
         return res.status(400).json(errors);
     }
 
-    db.User.findOne({username: req.body.username}).then(user => {
+    db.User.findOne({ username: req.body.username }).then(user => {
         if (user) {
-            return res.status(400).json({username: "Username is already in use - please choose another"});
+            return res.status(400).json({ username: "Username is already in use - please choose another" });
         } else {
             const newUser = {
                 firstName: req.body.firstName,
@@ -130,6 +130,25 @@ app.post("/register", function(req, res) {
     });
 });
 
+//
+app.get("/users/:id", (req, res) => {
+    const id = req.params.id;
+    console.log(id);
+    db.User.find({}).then(users => {
+        const friends = users.filter(user => {
+            if (user._id === req.params.id) {
+                return false;
+            }
+            return true;
+        });
+        console.log(friends);
+        res.json(friends);
+    }).catch(err => {
+        console.log(err);
+        res.end();
+    });
+});
+
 //      
 app.post('/album/', (req, res) => {
     spotify.search({ type: 'album', query: `${req.body.title}` }, function (err, data) {
@@ -149,8 +168,8 @@ app.post('/album/', (req, res) => {
             bigO.image = image;
             bigO.name = name;
             bigO.id = i
-            bigO.search=data.albums.items[i].id
-            
+            bigO.search = data.albums.items[i].id
+
             array4.push(bigO)
 
         }
@@ -167,30 +186,30 @@ app.post('/album/:id/:title', (req, res) => {
             return console.log('Error occurred: ' + err);
         }
         // console.log(data.tracks.items[0].album.id)
-        for(var i = 0; i < data.albums.items.length; i++){
-            if(req.params.id === data.albums.items[i].id){
+        for (var i = 0; i < data.albums.items.length; i++) {
+            if (req.params.id === data.albums.items[i].id) {
                 console.log(data.albums.items[i])
                 let name = data.albums.items[i].name
                 let artist = (data.albums.items[i].artists[0].name);
                 let image = (data.albums.items[i].images[0].url);
-    
+
                 artist = artist;
                 artUri = image;
-                albumTitle=name
-                searchId=data.albums.items[i].id
-                uri=(data.albums.items[i].uri)
+                albumTitle = name
+                searchId = data.albums.items[i].id
+                uri = (data.albums.items[i].uri)
                 db.Music.create({
                     artist,
                     artUri,
                     albumTitle,
                     uri,
                     searchId
-                }).then(function(dbMusic) {
-                    return db.List.findOneAndUpdate({_id: req.body.id}, { $push: { items: dbMusic._id } }, { new: true} );
-                }).then(function(dbList) {
+                }).then(function (dbMusic) {
+                    return db.List.findOneAndUpdate({ _id: req.body.id }, { $push: { items: dbMusic._id } }, { new: true });
+                }).then(function (dbList) {
                     console.log("Adding music item into", dbList);
                     res.json(dbList);
-                }).catch(function(err) {
+                }).catch(function (err) {
                     //console.log(err);
                     res.json(err);
                 });
@@ -237,35 +256,36 @@ app.post('/song/:id/:title', (req, res) => {
             return console.log('Error occurred: ' + err);
         }
 
-        
-        // console.log(data.tracks.items[0].album.id)
-        for(var i = 0; i < data.tracks.items.length; i++){
-            if(req.params.id === data.tracks.items[i].id){
-                // console.log(data.tracks.items[i])
-               let array = []
-               array.push(data.tracks.items[i].name);
-               let artist = (data.tracks.items[i].artists[0].name);
-               let uri = (data.tracks.items[i].uri);
-               let artUri= (data.tracks.items[i].album.images[0].url);
-               let albumTitle = (data.tracks.items[i].album.name);
-               let searchId = data.tracks.items[i].id
 
-               db.Music.create({
-                   tracks:array,
-                   artist,
-                   artUri,
-                   albumTitle,
-                   uri,searchId
-               }).then(function(dbMusic) {
-                   console.log("This is for songs", dbMusic);
-                    return db.List.findOneAndUpdate({_id: req.body.id}, { $push: { items: dbMusic._id } }, { new: true} );
-               }).then(function(dbList) {
+        
+        for (var i = 0; i < data.tracks.items.length; i++) {
+    
+            if (req.params.id === data.tracks.items[i].id) {
+                console.log(data.tracks.items[i])
+                let array = []
+                array.push(data.tracks.items[i].name);
+                let artist = (data.tracks.items[i].artists[0].name);
+                let uri = (data.tracks.items[i].uri);
+                let artUri = (data.tracks.items[i].album.images[0].url);
+                let albumTitle = (data.tracks.items[i].album.name);
+                let searchId = data.tracks.items[i].id
+
+                db.Music.create({
+                    tracks: array,
+                    artist,
+                    artUri,
+                    albumTitle,
+                    uri, 
+                    searchId
+                }).then(function (dbMusic) {
+                    return db.List.findOneAndUpdate({ _id: req.body.id }, { $push: { items: dbMusic._id } }, { new: true });
+                }).then(function (dbList) {
                     console.log("Adding music item into", dbList);
                     res.json(dbList);
-               }).catch(function(err) {
+                }).catch(function (err) {
                     //console.log(err);
                     res.json(err);
-               });
+                });
             }
         }
     })
@@ -303,16 +323,16 @@ app.post('/books/:id', (req, res) => {
             author: data.data.volumeInfo.authors[0],
             artUri: data.data.volumeInfo.imageLinks.thumbnail,
             synopsis: data.data.volumeInfo.description,
-            uri:data.data.selfLink
-        }).then(function(dbBook) {
-            return db.List.findOneAndUpdate({_id: req.body.id}, { $push: { items: dbBook._id} }, { new: true});
-        }).then(function(dbList) {
+            uri: data.data.selfLink
+        }).then(function (dbBook) {
+            return db.List.findOneAndUpdate({ _id: req.body.id }, { $push: { items: dbBook._id } }, { new: true });
+        }).then(function (dbList) {
             console.log("pushing into book list", dbList);
             res.json(dbList);
-        }).catch(function(err) {
+        }).catch(function (err) {
             res.json(err);
         });
-    }).catch(err=>{
+    }).catch(err => {
         console.log(err)
     })
 })
@@ -348,24 +368,24 @@ app.post('/movies', (req, res) => {
 //searches specific user movie based on onClick and adds to user specific list
 app.post('/movies/:id', (req, res) => {
     console.log('looking at movies')
-    axios.get(`http://www.omdbapi.com/?i=${req.params.id}&apikey=${apiKey}` ).then(data=>{
-        
+    axios.get(`http://www.omdbapi.com/?i=${req.params.id}&apikey=${apiKey}`).then(data => {
+
         console.log("testing scott's stuff", req.body);
         console.log(data.data.Title)
         db.Movie.create({
-            title:data.data.Title,
+            title: data.data.Title,
             genre: data.data.Genre,
             actors: data.data.Actors,
-            director : data.data.Director,
+            director: data.data.Director,
             artUri: data.data.Poster,
             synopsis: data.data.Plot,
             uri: data.data.Website
-        }).then(function(dbMovie) {
-            return db.List.findOneAndUpdate({_id: req.body.id}, { $push: { items: dbMovie._id } }, { new: true} );
-        }).then(function(dbList) {
+        }).then(function (dbMovie) {
+            return db.List.findOneAndUpdate({ _id: req.body.id }, { $push: { items: dbMovie._id } }, { new: true });
+        }).then(function (dbList) {
             console.log(dbList);
             res.json(dbList);
-        }).catch(function(err) {
+        }).catch(function (err) {
             res.json(err);
         });
 
@@ -373,65 +393,93 @@ app.post('/movies/:id', (req, res) => {
     });
 });
 
-app.post("/create-list", function(req,res) {
+app.post("/create-list", function (req, res) {
     console.log(req.body);
-    db.List.create({title: req.body.title, category: req.body.category, pinned: req.body.pinned}).then(function(dbList) {
+    db.List.create({ title: req.body.title, category: req.body.category, pinned: req.body.pinned }).then(function (dbList) {
         res.json(dbList);
-        return db.User.findOneAndUpdate({username: req.body.username}, { $push: { lists: dbList._id } }, { new: true });
-    }).then(function(dbUser) {
+        return db.User.findOneAndUpdate({ username: req.body.username }, { $push: { lists: dbList._id } }, { new: true });
+    }).then(function (dbUser) {
         //res.json(dbUser);
         console.log(dbUser);
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json(err);
     });
 });
 
-app.get("/user/:id", function(req, res) {
+app.get("/user/:id", function (req, res) {
     console.log("testing display list stuff", req.params.id);
-    db.User.findOne({username: req.params.id}).populate("lists").then(function(dbUser) {
+    db.User.findOne({ username: req.params.id }).populate("lists").then(function (dbUser) {
         console.log(dbUser)
         res.json(dbUser);
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json(err);
     });
 });
 //Post route for comments, will send thorugh specific list Id (via mongo eg: __id) and comment to be added to list.
 //Will also need 
 
-app.post('/comments',(req,res)=>{
+app.post('/comments', (req, res) => {
     console.log(req.body);
 })
 
-app.post('/list/:id/:category',(req,res)=>{
+app.post('/list/:id/:category', (req, res) => {
     var array = []
-    const {id,category} = req.params
-    db.List.findOne({_id:id
-    }).then(data=>{
+    const { id, category } = req.params
+    db.List.findOne({
+        _id: id
+    }).then(data => {
         let array = []
         let count = 0
-        
-        if(category === 'cinema'){
-            for(var i = 0; i < data.items.length; i++){
-                db.Movie.findOne({_id:data.items[i]}).then(data2=>{
+
+        if (category === 'cinema') {
+            for (var i = 0; i < data.items.length; i++) {
+                db.Movie.findOne({ _id: data.items[i] }).then(data2 => {
                     array.push(data2)
                     count++
-                    if(count === data.items.length){
+                    if (count === data.items.length) {
                         res.send(array)
                     }
                 })
-                
+
             }
-           
-            
+
+
         }
-        
+        else if (category === 'literature') {
+            for (var i = 0; i < data.items.length; i++) {
+                db.Book.findOne({ _id: data.items[i] }).then(data2 => {
+                    array.push(data2)
+                    count++
+                    if (count === data.items.length) {
+                        res.send(array)
+                        console.log(array)
+
+                    }
+                })
+
+            }
+        }
+        else {
+            console.log(data)
+            for (var i = 0; i < data.items.length; i++) {
+                db.Music.findOne({ _id: data.items[i] }).then(data2 => {
+                    array.push(data2);
+                    count++
+                    if (count === data.items.length) {
+                        res.send(array);
+                        console.log('checking here', array)
+                    }
+                })
+            }
+        }
+
     })
 })
 
-app.post('/listItem',(req,res)=>{
-    const {id,type} = req.body;
-    if(type === 'cinema'){
-        axios.get(`http://www.omdbapi.com/?i=${id}&apikey=${apiKey}`).then(data=>{
+app.post('/listItem', (req, res) => {
+    const { id, type } = req.body;
+    if (type === 'cinema') {
+        axios.get(`http://www.omdbapi.com/?i=${id}&apikey=${apiKey}`).then(data => {
             res.send(data.data)
         })
     }
