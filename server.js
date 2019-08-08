@@ -248,7 +248,7 @@ app.post('/song/:id/:title', (req, res) => {
                let uri = (data.tracks.items[i].uri);
                let artUri= (data.tracks.items[i].album.images[0].url);
                let albumTitle = (data.tracks.items[i].album.name);
-               let searchId = data.tracks.itmes[i].id
+               let searchId = data.tracks.items[i].id
 
                db.Music.create({
                    tracks:array,
@@ -257,6 +257,7 @@ app.post('/song/:id/:title', (req, res) => {
                    albumTitle,
                    uri,searchId
                }).then(function(dbMusic) {
+                   console.log("This is for songs", dbMusic);
                     return db.List.findOneAndUpdate({_id: req.body.id}, { $push: { items: dbMusic._id } }, { new: true} );
                }).then(function(dbList) {
                     console.log("Adding music item into", dbList);
