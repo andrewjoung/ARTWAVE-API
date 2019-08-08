@@ -185,7 +185,15 @@ app.post('/album/:id/:title', (req, res) => {
                     albumTitle,
                     uri,
                     searchId
-                })
+                }).then(function(dbMusic) {
+                    return db.List.findOneAndUpdate({_id: req.body.id}, { $push: { items: dbMusic._id } }, { new: true} );
+                }).then(function(dbList) {
+                    console.log("Adding music item into", dbList);
+                    res.json(dbList);
+                }).catch(function(err) {
+                    //console.log(err);
+                    res.json(err);
+                });
 
 
                 // console.log(artist,artUri,albumTitle,searchId)
@@ -248,7 +256,15 @@ app.post('/song/:id/:title', (req, res) => {
                    artUri,
                    albumTitle,
                    uri,searchId
-               })
+               }).then(function(dbMusic) {
+                    return db.List.findOneAndUpdate({_id: req.body.id}, { $push: { items: dbMusic._id } }, { new: true} );
+               }).then(function(dbList) {
+                    console.log("Adding music item into", dbList);
+                    res.json(dbList);
+               }).catch(function(err) {
+                    //console.log(err);
+                    res.json(err);
+               });
             }
         }
     })
