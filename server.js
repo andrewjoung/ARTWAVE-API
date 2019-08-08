@@ -66,7 +66,7 @@ app.post("/login", function(req, res) {
             if(isMatch) {
                 const payload = {
                     id: user.id,
-                    name: user.firstName + " " + user.lastName
+                    name: user.username
                 };
                 jwt.sign(payload, keys.secretOrKey, {expiresIn: 3600}, (err, token) => {
                     if(err) throw err;
@@ -127,6 +127,25 @@ app.post("/register", function(req, res) {
                 });
             });
         }
+    });
+});
+
+//
+app.get("/users/:id", (req, res) => {
+    const id = req.params.id;
+    console.log(id);
+    db.User.find({}).then(users => {
+        const friends = users.filter(user => {
+            if (user._id === req.params.id) {
+                return false;
+            }
+            return true;
+        });
+        console.log(friends);
+        res.json(friends);
+    }).catch(err => {
+        console.log(err);
+        res.end();
     });
 });
 
