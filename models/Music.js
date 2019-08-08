@@ -7,13 +7,17 @@ let MusicSchema = new Schema({
     tracks: [],
 
     artist: {
-        type:String,
-        required:true
+        type: String,
+        required: true
     },
 
-    artUri:String,
+    artUri: String,
     albumTitle: String,
-    uri: String
+    uri: String,
+    searchId: {
+        type: String,
+        required: true
+    }
 });
 
 let Music = mongoose.model("Music", MusicSchema);
