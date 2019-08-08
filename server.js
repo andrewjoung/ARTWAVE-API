@@ -358,7 +358,7 @@ app.post('/movies/:id', (req, res) => {
 
 app.post("/create-list", function(req,res) {
     console.log(req.body);
-    db.List.create({title: req.body.title, category: req.body.category}).then(function(dbList) {
+    db.List.create({title: req.body.title, category: req.body.category, pinned: req.body.pinned}).then(function(dbList) {
         res.json(dbList);
         return db.User.findOneAndUpdate({username: req.body.username}, { $push: { lists: dbList._id } }, { new: true });
     }).then(function(dbUser) {
