@@ -438,7 +438,7 @@ app.post('/list/:id/:category', (req, res) => {
                     array.push(data2)
                     count++
                     if (count === data.items.length) {
-                        res.send(array)
+                        res.send({array,id})
                     }
                 })
 
@@ -452,8 +452,8 @@ app.post('/list/:id/:category', (req, res) => {
                     array.push(data2)
                     count++
                     if (count === data.items.length) {
-                        res.send(array)
-                        console.log(array)
+                        res.send({array,id})
+                        // console.log()
 
                     }
                 })
@@ -466,8 +466,8 @@ app.post('/list/:id/:category', (req, res) => {
                     array.push(data2);
                     count++
                     if(count === data.items.length){
-                        console.log(array)
-                        res.send(array)
+                        
+                        res.send({array,id})
                     }
                 })
             }
@@ -475,6 +475,25 @@ app.post('/list/:id/:category', (req, res) => {
         }
 
     })
+})
+
+app.post('/commentSubmit',(req,res)=>{
+    console.log(req.body)
+    const{id,comment,listId}=req.body;
+    // console.log(id)
+    db.Comment.create({
+        user:listId,
+        body:comment
+    }).then(data2=>{
+        console.log(data2)
+    })
+
+    // db.List.user({_id:id.id}).populate('list').then(data3=>{
+    //     console.log(data3)
+    // })
+ 
+
+
 })
 
 app.post('/listItem', (req, res) => {
