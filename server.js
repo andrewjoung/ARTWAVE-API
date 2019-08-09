@@ -508,9 +508,14 @@ app.post('/commentSubmit',(req,res)=>{
     db.Comment.create({
         user:listId,
         body:comment
-    }).then(data2=>{
-        console.log(data2)
-    })
+    }).then(function(dbComment) {
+        return db.List.findOneAndUpdate({_id: listId}, {$push: {comments: dbComment.id}}, {new:true}).then(function(dbList) {
+            console.log(dbList);
+            res.json(dbList);
+        }).catch(function(err) {
+            res.json(err);
+        });
+    });
 
     // db.List.user({_id:id.id}).populate('list').then(data3=>{
     //     console.log(data3)
