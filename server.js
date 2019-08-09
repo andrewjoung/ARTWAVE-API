@@ -34,8 +34,11 @@ app.use(express.json());
 // app.use(users);
 // app.use(express.static("public"));
 
-// Connect database
+// Connect database for local testing
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoArtWave";
+
+//connect database for deployed version
+// const MONGODB_URI = process.env.MONGODB_URI || "mongodb://artwave:password1@ds157276.mlab.com:57276/heroku_qxtn8tp0";
 
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true }).then(() => {
     console.log("\nMongoDB successfully connected\n");
@@ -151,8 +154,8 @@ app.get("/users/:id", (req, res) => {
 
 // 
 app.put("/addFriend", (req, res) => {
-    const {userId, friendId} = req.body;
-    db.User.update({_id: userId}, {$push: {friends: friendId}}).then(dbRes => {
+    const { userId, friendId } = req.body;
+    db.User.update({ _id: userId }, { $push: { friends: friendId } }).then(dbRes => {
         console.log(dbRes);
         res.json(dbRes);
     }).catch(err => {
@@ -164,7 +167,7 @@ app.put("/addFriend", (req, res) => {
 //
 app.get("/getFriends/:id", (req, res) => {
     // use populate to get all friends
-    db.User.findOne({_id: req.params.id}).populate("friends").then(dbRes => {
+    db.User.findOne({ _id: req.params.id }).populate("friends").then(dbRes => {
         console.log("User friends: \n", dbRes);
         res.json(dbRes);
     }).catch(err => {
@@ -280,9 +283,9 @@ app.post('/song/:id/:title', (req, res) => {
             return console.log('Error occurred: ' + err);
         }
 
-        
+
         for (var i = 0; i < data.tracks.items.length; i++) {
-    
+
             if (req.params.id === data.tracks.items[i].id) {
                 console.log(data.tracks.items[i])
                 let array = []
@@ -298,7 +301,7 @@ app.post('/song/:id/:title', (req, res) => {
                     artist,
                     artUri,
                     albumTitle,
-                    uri, 
+                    uri,
                     searchId
                 }).then(function (dbMusic) {
                     console.log('checking')
@@ -448,7 +451,7 @@ app.post('/comments', (req, res) => {
 
 app.post('/list/:id/:category', (req, res) => {
     var array = []
-    console.log('this is being checked')
+
     const { id, category } = req.params
     db.List.findOne({
         _id: id
@@ -461,8 +464,31 @@ app.post('/list/:id/:category', (req, res) => {
                 db.Movie.findOne({ _id: data.items[i] }).then(data2 => {
                     array.push(data2)
                     count++
+
                     if (count === data.items.length) {
-                        res.send({array,id})
+                        let commentIds = []
+                        commentsArray = []
+                        let count2 = 0
+                        if (data.comments.length !== 0) {
+                            for (var i = 0; i < data.comments.length; i++) {
+                                commentIds.push(data.comments[i])
+                            }
+                            for (var i = 0; i < commentIds.length; i++) {
+                                db.Comment.findOne({ _id: commentIds[i] }).then(commentData => {
+                                    commentsArray.push(commentData.body)
+                                    count2++
+                                    if (count2 === commentIds.length) {
+                                        res.send({ array, id, commentsArray })
+                                    }
+                                })
+
+                            }
+
+                        }
+                        else {
+                            let commentsArray = []
+                            res.send({ array, id, commentsArray })
+                        }
                     }
                 })
 
@@ -475,8 +501,36 @@ app.post('/list/:id/:category', (req, res) => {
                 db.Book.findOne({ _id: data.items[i] }).then(data2 => {
                     array.push(data2)
                     count++
+
                     if (count === data.items.length) {
-                        res.send({array,id})
+                        let commentIds = []
+                        commentsArray = []
+                        let count2 = 0
+
+                        if (data.comments.length !== 0) {
+                            for (var i = 0; i < data.comments.length; i++) {
+                                commentIds.push(data.comments[i])
+                            }
+                            for (var i = 0; i < commentIds.length; i++) {
+                                db.Comment.findOne({ _id: commentIds[i] }).then(commentData => {
+                                    commentsArray.push(commentData.body)
+                                    console.log(commentData.body)
+                                    count2++
+
+                                    if (count2 === commentIds.length) {
+                                        // console.log(commentsArray)
+                                        res.send({ array, id, commentsArray: commentsArray })
+                                    }
+                                })
+
+                            }
+
+                        }
+                        else {
+                            let commentsArray = []
+                            res.send({ array, id, commentsArray })
+                        }
+                        // res.send({ array, id })
                         // console.log()
 
                     }
@@ -484,14 +538,40 @@ app.post('/list/:id/:category', (req, res) => {
 
             }
         }
-        else if(category==='music') {
-            for(var i = 0; i < data.items.length; i++){
-                db.Music.findOne({_id:data.items[i]}).then(data2=>{
+        else if (category === 'music') {
+            for (var i = 0; i < data.items.length; i++) {
+                db.Music.findOne({ _id: data.items[i] }).then(data2 => {
                     array.push(data2);
                     count++
-                    if(count === data.items.length){
-                        
-                        res.send({array,id})
+                    if (count === data.items.length) {
+
+                        let commentIds = []
+                        commentsArray = []
+                        let count2 = 0
+
+                        if (data.comments.length !== 0) {
+                            for (var i = 0; i < data.comments.length; i++) {
+                                commentIds.push(data.comments[i])
+                            }
+                            for (var i = 0; i < commentIds.length; i++) {
+                                db.Comment.findOne({ _id: commentIds[i] }).then(commentData => {
+                                    commentsArray.push(commentData.body)
+                                    console.log(commentData.body)
+                                    count2++
+
+                                    if (count2 === commentIds.length) {
+                                        // console.log(commentsArray)
+                                        res.send({ array, id, commentsArray: commentsArray })
+                                    }
+                                })
+
+                            }
+
+                        }
+                        else {
+                            let commentsArray = []
+                            res.send({ array, id, commentsArray })
+                        }
                     }
                 })
             }
@@ -501,18 +581,18 @@ app.post('/list/:id/:category', (req, res) => {
     })
 })
 
-app.post('/commentSubmit',(req,res)=>{
+app.post('/commentSubmit', (req, res) => {
     console.log(req.body)
-    const{id,comment,listId}=req.body;
+    const { id, comment, listId } = req.body;
     // console.log(id)
     db.Comment.create({
-        user:listId,
-        body:comment
-    }).then(function(dbComment) {
-        return db.List.findOneAndUpdate({_id: listId}, {$push: {comments: dbComment.id}}, {new:true}).then(function(dbList) {
+        user: listId,
+        body: comment
+    }).then(function (dbComment) {
+        return db.List.findOneAndUpdate({ _id: listId }, { $push: { comments: dbComment.id } }, { new: true }).then(function (dbList) {
             console.log(dbList);
             res.json(dbList);
-        }).catch(function(err) {
+        }).catch(function (err) {
             res.json(err);
         });
     });
@@ -520,7 +600,7 @@ app.post('/commentSubmit',(req,res)=>{
     // db.List.user({_id:id.id}).populate('list').then(data3=>{
     //     console.log(data3)
     // })
- 
+
 
 
 })
