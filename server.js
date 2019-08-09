@@ -523,16 +523,16 @@ app.post('/commentSubmit',(req,res)=>{
  
 
 
-})
+});
 
 app.post('/listItem', (req, res) => {
     const { id, type } = req.body;
     if (type === 'cinema') {
         axios.get(`http://www.omdbapi.com/?i=${id}&apikey=${apiKey}`).then(data => {
             res.send(data.data)
-        })
+        });
     }
-})
+});
 
 //App will listen of ports
 app.listen(PORT, function () {
