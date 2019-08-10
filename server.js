@@ -447,6 +447,7 @@ app.post('/comments', (req, res) => {
 })
 
 app.post('/list/:id/:category', (req, res) => {
+    console.log(req.params);
     var array = []
     console.log('this is being checked')
     const { id, category } = req.params
