@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-let apiKey = '91413d43';
+require('dotenv').config()
+let apiKey = process.env.apikey;
 let axios = require('axios');
 const db = require("../models");
 
