@@ -3,7 +3,6 @@ var router = express.Router();
 const db = require("../models");
 
 router.post('/list/:id/:category', (req, res) => {
-    var array = []
 
     const { id, category } = req.params
     db.List.findOne({
