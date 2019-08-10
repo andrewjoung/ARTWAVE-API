@@ -1,7 +1,5 @@
 var express = require('express');
 var router = express.Router();
-let apiKey = '91413d43';
-let axios = require('axios');
 const Spotify = require('node-spotify-api');
 const spotify = new Spotify({
     id: 'b5d5612d07684ecdacbfd220fb70b4c9',
