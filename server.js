@@ -97,6 +97,10 @@ app.use(require('./Routes/ClickedList'));
 //route used to send comment and apply it to certain list via population of comment model into list model with user ID
 app.use(require('./Routes/CommentSubmit'));
 
+app.use(require('./Routes/getListData'));
+
+app.use(require('./Routes/addCommentToList'));
+
 app.use(require('./Routes/ListItem'));
 
 
