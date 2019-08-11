@@ -99,6 +99,12 @@ app.use(require('./Routes/CommentSubmit'));
 
 app.use(require('./Routes/getListData'));
 
+app.use(require('./Routes/getMovieItem'));
+
+app.use(require('./Routes/getMusicItem'));
+
+app.use(require('./Routes/getBookItem'));
+
 app.use(require('./Routes/addCommentToList'));
 
 app.use(require('./Routes/ListItem'));
