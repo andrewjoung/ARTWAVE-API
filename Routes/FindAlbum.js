@@ -1,11 +1,10 @@
 var express = require('express');
 var router = express.Router();
-let apiKey = '91413d43';
-let axios = require('axios');
 const Spotify = require('node-spotify-api');
+require('dotenv').config()
 const spotify = new Spotify({
-    id: 'b5d5612d07684ecdacbfd220fb70b4c9',
-    secret: '7c527687d94c49f1a283872df71f004e'
+    id: process.env.spotifyId,
+    secret: process.env.spotifySecret
 });
 
 router.post('/album/', (req, res) => {

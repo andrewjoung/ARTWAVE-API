@@ -134,6 +134,6 @@ router.post('/list/:id/:category', (req, res) => {
         console.log(err);
         res.end()
     });
-});
+ });
 
 module.exports = router;
