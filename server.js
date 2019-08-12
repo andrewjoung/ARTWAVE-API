@@ -109,6 +109,8 @@ app.use(require('./Routes/addCommentToList'));
 
 app.use(require('./Routes/ListItem'));
 
+app.use(require('./Routes/SeeFriend'));
+
 
 //App will listen of ports
 app.listen(PORT, function () {
