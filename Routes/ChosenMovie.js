@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
 require('dotenv').config()
-let apiKey = process.env.apikey;
 let axios = require('axios');
 const db = require("../models");
+let apiKey = '91413d43';
 
 router.post('/movies/:id', (req, res) => {
   console.log('looking at movies')
