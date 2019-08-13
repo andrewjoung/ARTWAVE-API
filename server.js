@@ -20,7 +20,7 @@ const db = require("./models");
 
 // Instantiate express
 const app = express();
-app.use(cors())
+app.use(cors());
 app.use(passport.initialize());
 require("./config/passport")(passport);
 app.use(express.urlencoded({ extended: false }));
@@ -99,6 +99,8 @@ app.use(require('./Routes/CommentSubmit'));
 
 app.use(require('./Routes/getListData'));
 
+app.use(require('./Routes/getFriendData'));
+
 app.use(require('./Routes/getMovieItem'));
 
 app.use(require('./Routes/getMusicItem'));
@@ -106,6 +108,10 @@ app.use(require('./Routes/getMusicItem'));
 app.use(require('./Routes/getBookItem'));
 
 app.use(require('./Routes/addCommentToList'));
+
+app.use(require('./Routes/recommendList'));
+
+app.use(require('./Routes/populateRecommended'));
 
 app.use(require('./Routes/ListItem'));
 
