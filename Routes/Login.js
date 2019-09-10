@@ -25,6 +25,12 @@ router.post("/login", function (req, res) {
               };
               jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 }, (err, token) => {
                   if (err) throw err;
+
+                  let profileImageUrl = ""
+                  if (user.profileImage) {
+                    profileImageUrl = user.profileImage
+                  }
+
                   res.json({
                       success: true,
                       token: "Bearer " + token,
@@ -32,6 +38,7 @@ router.post("/login", function (req, res) {
                       lastName: user.lastName,
                       username: user.username,
                       email: user.email,
+                      profileImageUrl: profileImageUrl,
                       id: user._id,
                       lists: user.lists,
                       recommended: user.recommended,
