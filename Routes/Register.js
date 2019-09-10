@@ -21,7 +21,8 @@ router.post("/register", function (req, res) {
               lastName: req.body.lastName,
               username: req.body.username,
               email: req.body.email,
-              password: req.body.password
+              password: req.body.password,
+              profileImage: ""
           }
           bcrypt.genSalt(10, (err, salt) => {
               if (err) throw err;
