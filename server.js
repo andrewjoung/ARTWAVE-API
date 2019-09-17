@@ -20,10 +20,10 @@ app.use(express.json());
 // app.use(users);
 
 // Connect database for local testing
-// const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoArtWave";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoArtWave";
 
-//connect database for deployed version
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://artwave:password1@ds157276.mlab.com:57276/heroku_qxtn8tp0";
+// Connect database for deployed version
+// const MONGODB_URI = process.env.MONGODB_URI || "mongodb://artwave:password1@ds157276.mlab.com:57276/heroku_qxtn8tp0";
 
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true }).then(() => {
     console.log("\nMongoDB successfully connected\n");

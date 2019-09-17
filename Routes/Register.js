@@ -30,7 +30,7 @@ router.post("/register", function (req, res) {
                   if (err) throw err;
                   newUser.password = hash;
                   db.User.create(newUser).then(user => {
-                      console.log(user);
+                    //   console.log(user);
                       res.json(user);
                   }).catch(err => {
                       console.log(err);
