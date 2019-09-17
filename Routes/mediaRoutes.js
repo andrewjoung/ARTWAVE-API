@@ -16,7 +16,7 @@ var router = express.Router();
 //
 router.get('/book/:id', (req, res) => {
     db.Book.findOne({_id: req.params.id}).then(bookData => {
-        console.log(bookData);
+        // console.log(bookData);
         res.json(bookData);
     }).catch(err => {
         console.log(err);
@@ -27,7 +27,7 @@ router.get('/book/:id', (req, res) => {
 //
 router.get('/movie/:id', (req, res) => {
     db.Movie.findOne({_id: req.params.id}).then(movieData => {
-        console.log(movieData);
+        // console.log(movieData);
         res.json(movieData);
     }).catch(err => {
         console.log(err);
@@ -38,7 +38,7 @@ router.get('/movie/:id', (req, res) => {
 //
 router.get('/music/:id', (req, res) => {
     db.Music.findOne({_id: req.params.id}).then(musicData => {
-        console.log(musicData);
+        // console.log(musicData);
         res.json(musicData);
     }).catch(err => {
         console.log(err);
@@ -48,11 +48,11 @@ router.get('/music/:id', (req, res) => {
 
 //
 router.post('/movies/:id', (req, res) => {
-    console.log('looking at movies')
+    // console.log('looking at movies')
     axios.get(`http://www.omdbapi.com/?i=${req.params.id}&apikey=${process.env.apiKey}`).then(data => {
 
-        console.log("testing scott's stuff", req.body);
-        console.log(data.data.Title)
+        // console.log("testing scott's stuff", req.body);
+        // console.log(data.data.Title)
         db.Movie.create({
             title: data.data.Title,
             genre: data.data.Genre,
@@ -64,7 +64,7 @@ router.post('/movies/:id', (req, res) => {
         }).then(function (dbMovie) {
             return db.List.findOneAndUpdate({ _id: req.body.id }, { $push: { items: dbMovie._id } }, { new: true });
         }).then(function (dbList) {
-            console.log(dbList);
+            // console.log(dbList);
             res.json(dbList);
         }).catch(function (err) {
             res.json(err);
@@ -86,7 +86,7 @@ router.post('/books/:id', (req, res) => {
         }).then(function (dbBook) {
             return db.List.findOneAndUpdate({ _id: req.body.id }, { $push: { items: dbBook._id } }, { new: true });
         }).then(function (dbList) {
-            console.log("pushing into book list", dbList);
+            // console.log("pushing into book list", dbList);
             res.json(dbList);
         }).catch(function (err) {
             res.json(err);
@@ -106,7 +106,7 @@ router.post('/album/:id/:title', (req, res) => {
         // console.log(data.tracks.items[0].album.id)
         for (var i = 0; i < data.albums.items.length; i++) {
             if (req.params.id === data.albums.items[i].id) {
-                console.log(data.albums.items[i])
+                // console.log(data.albums.items[i])
                 let name = data.albums.items[i].name
                 let artist = (data.albums.items[i].artists[0].name);
                 let image = (data.albums.items[i].images[0].url);
@@ -125,7 +125,7 @@ router.post('/album/:id/:title', (req, res) => {
                 }).then(function (dbMusic) {
                     return db.List.findOneAndUpdate({ _id: req.body.id }, { $push: { items: dbMusic._id } }, { new: true });
                 }).then(function (dbList) {
-                    console.log("Adding music item into", dbList);
+                    // console.log("Adding music item into", dbList);
                     res.json(dbList);
                 }).catch(function (err) {
                     //console.log(err);
@@ -150,7 +150,7 @@ router.post('/song/:id/:title', (req, res) => {
         for (var i = 0; i < data.tracks.items.length; i++) {
 
             if (req.params.id === data.tracks.items[i].id) {
-                console.log(data.tracks.items[i])
+                // console.log(data.tracks.items[i])
                 let array = []
                 array.push(data.tracks.items[i].name);
                 let artist = (data.tracks.items[i].artists[0].name);
@@ -167,10 +167,10 @@ router.post('/song/:id/:title', (req, res) => {
                     uri,
                     searchId
                 }).then(function (dbMusic) {
-                    console.log('checking')
+                    // console.log('checking')
                     return db.List.findOneAndUpdate({ _id: req.body.id }, { $push: { items: dbMusic._id } }, { new: true });
                 }).then(function (dbList) {
-                    console.log("Adding music item into", dbList);
+                    // console.log("Adding music item into", dbList);
                     res.json(dbList);
                 }).catch(function (err) {
                     //console.log(err);

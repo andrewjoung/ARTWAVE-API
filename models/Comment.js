@@ -12,10 +12,8 @@ let CommentSchema = new Schema({
       ref: "User"
   },
   // `body` is of type String
-  body: String,
-
-  
-});
+  body: String 
+}, {timestamps: true});
 
 // This creates our model from the above schema, using mongoose's model method
 let Comment = mongoose.model("Comment", CommentSchema);
