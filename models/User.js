@@ -25,6 +25,9 @@ let UserSchema = new Schema({
         type: String,
         require: true
     },
+    profileImage: {
+        type: String
+    },
     //an array of lists that will be populated by the list model 
     lists: [
         {
